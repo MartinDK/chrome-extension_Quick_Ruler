@@ -8,7 +8,7 @@ document.getElementById('color').addEventListener('click', (e) => {
         },
         (response) => {
             if (response) {
-                console.log('Options Message Recieved:', response);
+                console.log('Options Message Received:', response);
                 e.target.checked
                     ? updateOptions('green')
                     : updateOptions('red');

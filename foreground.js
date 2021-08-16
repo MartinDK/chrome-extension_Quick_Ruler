@@ -27,6 +27,6 @@ chrome.storage.local.get('widthY', (data) => {
 });
 
 chrome.storage.onChanged.addListener(function (changes, namespace) {
-    console.log('chaniging widthY', changes.widthY.newValue);
+    console.log('changing widthY', changes.widthY.newValue);
     setRulerWidths(changes.widthY.newValue);
 });

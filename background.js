@@ -39,7 +39,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
 // Chrome onMessage listener
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.message === 'options.js') {
-        console.log('Recieved Options message!');
+        console.log('Received Options message!');
 
         // Get 'install' data from local storage
         chrome.storage.local.get('install', (data) => {
@@ -74,12 +74,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     }
     if (request.message === 'update-popup') {
-        console.log('recieved popup.js update');
+        console.log('received popup.js update');
         sendResponse({
-            message: `background.js recieved ${request.widthY}px ✅`,
+            message: `background.js received ${request.widthY}px ✅`,
         });
-
-        console.log('savinging...', request.widthY);
 
         chrome.storage.local.set({
             widthY: request.widthY,
