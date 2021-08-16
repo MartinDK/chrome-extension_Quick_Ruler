@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Chrome Extension Template</title>
+        <style>
+            body {
+                width: 200px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Settings</h1>
+        <label for="width">Ruler width:</label>
+        <input
+            id="input-width"
+            type="number"
+            value="20"
+            min="5"
+            max="200"
+            name="width"
+        />
+        <button id="saveBtn">Save</button>
+        <div id="popup">Settings</div>
+        <script type="text/javascript" src="./popup.js"></script>
+    </body>
+</html>

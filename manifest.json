@@ -1,0 +1,28 @@
+{
+    "manifest_version": 3,
+    "name": "Quick Ruler",
+    "version": "0.1.0",
+    "description": "A fixed width ruler, allowing quick measurement on a webpage.",
+    "icons": {
+        "16": "./images/icon-16x16.png",
+        "32": "./images/icon-32x32.png",
+        "48": "./images/icon-48x48.png",
+        "128": "./images/icon-128x128.png"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "Quick Ruler",
+        "default_icons": {
+            "16": "./images/icon-16x16.png",
+            "32": "./images/icon-32x32.png",
+            "48": "./images/icon-48x48.png",
+            "128": "./images/icon-128x128.png"
+        }
+    },
+    "options_page": "./options.html",
+    "permissions": ["background", "activeTab", "tabs", "storage", "scripting"],
+    "host_permissions": ["<all_urls>"]
+}
