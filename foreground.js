@@ -3,12 +3,12 @@ console.log('foreground.js');
 
 let rulerEl = document.createElement('div');
 let rulerTxt = document.createElement('p');
-let pageEl = document.querySelector('html');
+let targetEl = document.querySelector('html');
 
 rulerEl.id = 'quick-ruler';
 
 rulerEl.appendChild(rulerTxt);
-pageEl.appendChild(rulerEl);
+targetEl.appendChild(rulerEl);
 
 // Track mouse
 window.addEventListener('mouseup', handleMouseDown, false);
