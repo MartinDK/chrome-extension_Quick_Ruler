@@ -1,28 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
     <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Chrome Extension Template</title>
-        <style>
-            body {
-                width: 200px;
-            }
-        </style>
+        <link rel="stylesheet" type="text/css" href="popup.css" />
     </head>
     <body>
         <h1>Settings</h1>
-        <label for="width">Ruler width:</label>
-        <input
-            id="input-width"
-            type="number"
-            value="20"
-            min="5"
-            max="200"
-            name="width"
-        />
-        <button id="saveBtn">Save</button>
-        <div id="popup">Settings</div>
-        <script type="text/javascript" src="./popup.js"></script>
+        <fieldset>
+            <legend>Ruler Options</legend>
+            <input type="checkbox" id="rulerState" name="scales" />
+            <label for="rulerOn">Ruler On</label>
+            <br />
+            <label for="height">Ruler Height:</label>
+            <input id="input-height" type="number" value="20" min="5" max="200" name="height" />
+            <button id="saveBtn">Save</button>
+        </fieldset>
+        <br />
+        <br />
+        <fieldset>
+            <legend>YouTube Transcript</legend>
+            <button id="getTranscript">Get Transcript</button>
+            <div id="transcript"></div>
+        </fieldset>
+        <div id="popup"></div>
+        <script type="text/javascript" src="./popup.js" defer></script>
     </body>
 </html>

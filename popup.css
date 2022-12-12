@@ -1,0 +1,11 @@
+body {
+    width: 200px;
+    background-color: pink;
+}
+
+#transcript {
+    margin-top: 0.5em;
+    margin-right: 0.1em;
+    max-width: 173px;
+    /* background-color: hotpink; */
+}

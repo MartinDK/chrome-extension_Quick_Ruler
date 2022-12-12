@@ -1,19 +1,25 @@
-// Service worker - Service worker will deactivate and loose state after when not in use.
+let thisTab;
 
 // Initialise extension when extension is installed
 chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.local.set({
-        install: 'Fresh Install 🟢',
+        install: 'Install 🟢',
         options: 'default',
-        widthY: '20',
+        rulerHeight: '20',
     });
+});
+
+chrome.storage.local.set({
+    rulerHeight: '21',
 });
 
 // Chrome Tab event listener
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
-    // console.log(tabId);
-    // console.log(changeInfo);
-    // console.log(tabInfo);
+    console.log('tabId:', tabId);
+    thisTab = tabId;
+    //    console.log(changeInfo);
+    //    console.log(tabInfo);
+
     if (changeInfo.status === 'complete' && /^http/.test(tabInfo.url)) {
         // Inject service worker styles
         chrome.scripting
@@ -31,59 +37,117 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
                 files: ['./foreground.js'],
             })
             .then(() => {
-                console.log('Injecting foreground.js from background.js');
+                console.log('Injected foreground.js from background.js');
             })
             .catch((err) => console.log(err));
     }
 });
-// Chrome onMessage listener
+
+// Chrome Message Handler
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.message === 'options.js') {
-        console.log('Received Options message!');
+    console.log('request message:', request);
+    // console.log('sender:', sender);
 
-        // Get 'install' data from local storage
-        chrome.storage.local.get('install', (data) => {
-            if (chrome.runtime.lastError) {
-                sendResponse({
-                    message: 'fail',
-                });
-                return;
-            }
+    // Responses
+    switch (request.message) {
+        // case 'get transcript':
+        //     messageForeground({
+        //         message: 'from background.js - get transcript',
+        //         action: 'get transcript',
+        //     });
+        //     console.log('background.js switch processed - get transcript');
+        //     break;
+
+        case 'rulerOn-Off':
+            console.log('Ruler On/Off', request);
+            messageForeground({ message: 'ruler', action: request.state, tabId: thisTab });
+            break;
+
+        case 'popup-open':
+            // console.log('background.js received open popup message');
             sendResponse({
-                install: `${data.install}`,
-                message: 'background.js to options.js!',
+                message: 'hello popup from background',
             });
-        });
+            break;
 
-        return true;
+        case 'options.js':
+            console.log('Received Options message!');
+
+            // Get 'install' data from local storage
+            chrome.storage.local.get('install', (data) => {
+                if (chrome.runtime.lastError) {
+                    sendResponse({
+                        message: 'fail',
+                    });
+                    return;
+                }
+                sendResponse({
+                    install: `${data.install}`,
+                    message: 'background.js to options.js!',
+                });
+            });
+            break;
+
+        case 'popup.js':
+            console.log('sending message to popup.js');
+            sendResponse({
+                message: 'background.js to popup.js!',
+            });
+            break;
+
+        case 'foreground.js':
+            console.log('sending message to foreground.js');
+            sendResponse({
+                message: 'background.js to foreground.js!',
+            });
+            break;
+
+        case 'update-popup':
+            console.log('received popup.js update');
+            sendResponse({
+                message: `background.js received ${request.rulerHeight}px ✅`,
+            });
+
+            chrome.storage.local.set({
+                rulerHeight: request.rulerHeight,
+            });
+            break;
+
+        case 'update-options':
+            console.log('update-options-selected!!!');
+            break;
+
+        default:
+            // sendResponse({
+            //     message: `!! ${} !! - No response found`,
+            // });
+
+            console.log('No Response from background switch ..', request);
     }
-    if (request.message === 'popup.js') {
-        // console.log("sending message to popup.js");
-        sendResponse({
-            message: 'background.js to popup.js!',
-        });
 
-        return true;
-    }
-    if (request.message === 'foreground.js') {
-        // console.log("sending message to foreground.js");
-        sendResponse({
-            message: 'background.js to foreground.js!',
-        });
-
-        return true;
-    }
-    if (request.message === 'update-popup') {
-        console.log('received popup.js update');
-        sendResponse({
-            message: `background.js received ${request.widthY}px ✅`,
-        });
-
-        chrome.storage.local.set({
-            widthY: request.widthY,
-        });
-
-        return true;
-    }
-    console.log("background.js didn't reply. ", request);
+    // console.log("background.js didn't reply. ", request);
 });
+
+function messageForeground(action) {
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+        // console.log('lastFocusedWindow', tabs);
+        let url = tabs[0].url;
+        // use `url` here inside the callback because it's asynchronous!
+        console.log('url= ', url);
+    });
+
+    // Send message to 'tab' i.e foreground.js
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        // console.log('currentWindow', tabs);
+        // chrome.tabs.sendMessage(
+        //     tabs[0].id,
+        //     {
+        //         action: action,
+        //         url: tabs[0].url,
+        //     },
+        //     (response) => {
+        //         console.log(response);
+        //     }
+        // );
+    });
+}
