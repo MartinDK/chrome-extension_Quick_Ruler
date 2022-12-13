@@ -9,7 +9,6 @@ let targetEl = document.querySelector('html');
 rulerEl.appendChild(rulerTxt);
 
 rulerEl.id = 'quickRuler';
-console.log(rulerEl);
 
 // Track mouse
 window.addEventListener('mouseup', handleMouseUp, false);
@@ -26,26 +25,24 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
 
 // Chrome Message Handler
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    //    console.log('received message');
-    // sendResponse({ message: 'Response from foreground.js' });
+    // console.log('received message');
 
-    console.log('forgeround request', request.message);
-    //    console.log('sender',sender);
+    console.log('forgeround request', request);
+    // console.log('sender',sender);
 
-    //    Get url details
+    // Get url details
     const url = new URL(request.url);
     console.log('site', url);
 
-    //    Execute function based on url origin
+    // Execute function based on url origin
     switch (url.origin) {
         case 'https://www.chemistwarehouse.com.au/':
-            console.log('Identified Chemist Warehouse', request.url);
+            console.log('Identified - Chemist Warehouse', request.url);
             chemistwarehouseBlocker(request.url);
             break;
 
         case 'https://www.youtube.com':
-            console.log('Identified YouTube', request.url);
-            // youtubeTranscript(url);
+            console.log('Identified - YouTube', request.url);
             break;
 
         default:
@@ -55,12 +52,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // Message Handler
     switch (request.message) {
         case 'toggleRuler':
-            console.log('Ruler On/Off-', request.action);
+            // console.log('toggleRuler', request.action);
 
             if (request.action) {
                 rulerOn();
             } else {
-                quickRuler.remove();
+                console.log('Ruler is off.');
             }
 
             break;
@@ -81,8 +78,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 function chemistwarehouseBlocker(url) {
-    console.log('Executing Chemist Warehouse function', url);
-
     const idBlockList = [
         { elementID: 'page_skinning', action: 'removeBackgroundImage' },
         { elementID: 'left_pg_clickable_cont', action: 'removeElement' },
@@ -94,12 +89,12 @@ function chemistwarehouseBlocker(url) {
 
         switch (item.action) {
             case 'removeBackgroundImage':
-                console.log('start removeBackgroundImage');
+                console.log('removeBackgroundImage');
                 removeBackgroundImage(el);
                 break;
 
             case 'removeElement':
-                console.log('start removeElement');
+                console.log('removeElement');
                 removeElement(el);
                 break;
 
@@ -109,13 +104,13 @@ function chemistwarehouseBlocker(url) {
     });
 
     function removeBackgroundImage(elementID) {
-        console.log('execute removeBackgroundImage', elementID);
+        // console.log('execute removeBackgroundImage', elementID);
         elementID.style.backgroundImage = null;
         elementID.style.backgroundColor = 'wheat';
     }
 
     function removeElement(elementID) {
-        console.log('execute removeElement');
+        // console.log('execute removeElement');
         elementID.remove();
     }
 }
@@ -130,15 +125,11 @@ function youtubeTranscript(url) {
 
     transcriptList.forEach((transcriptItem) => {
         transcript = `${transcript} ` + transcriptItem.innerText;
-        //        console.log(transcriptItem.innerText);
     });
 
     console.log({ message: 'transcript', trans: transcript });
 
     return { transcript: transcript };
-
-    // chrome.runtime.sendMessage({ message: 'transcript', trans: transcript }, function () {});
-    // TODO: Send Transcript to pop up...
 }
 
 function handleMouseUp(e) {

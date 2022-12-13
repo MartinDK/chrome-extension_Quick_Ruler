@@ -38,6 +38,27 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
             })
             .then(() => {
                 console.log('Injected foreground.js from background.js');
+                console.log('running rulerOn!');
+                chrome.storage.session.get(['rulerOn']).then((result) => {
+                    console.log('running rulerOn!!');
+                    let rulerOn = result.rulerOn;
+
+                    if (rulerOn) {
+                        console.log('rulerOn ->', rulerOn);
+
+                        messageForeground({
+                            message: 'toggleRuler',
+                            action: true,
+                        });
+                    } else {
+                        console.log('rulerOn ->', rulerOn);
+
+                        messageForeground({
+                            message: 'toggleRuler',
+                            action: false,
+                        });
+                    }
+                });
             })
             .catch((err) => console.log(err));
     }
@@ -48,16 +69,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log('request message:', request);
     // console.log('sender:', sender);
 
-    // Responses
+    // Foreground Response Handler
     switch (request.message) {
-        // case 'get transcript':
-        //     messageForeground({
-        //         message: 'from background.js - get transcript',
-        //         action: 'get transcript',
-        //     });
-        //     console.log('background.js switch processed - get transcript');
-        //     break;
-
         case 'rulerOn-Off':
             console.log('Ruler On/Off', request);
             messageForeground({ message: 'ruler', action: request.state, tabId: thisTab });
@@ -125,29 +138,37 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             console.log('No Response from background switch ..', request);
     }
 
-    // console.log("background.js didn't reply. ", request);
+    console.log("background.js didn't reply. ", request);
 });
 
 function messageForeground(action) {
+    console.log('action', action);
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
         // console.log('lastFocusedWindow', tabs);
         let url = tabs[0].url;
         // use `url` here inside the callback because it's asynchronous!
-        console.log('url= ', url);
     });
 
     // Send message to 'tab' i.e foreground.js
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        // console.log('currentWindow', tabs);
-        // chrome.tabs.sendMessage(
-        //     tabs[0].id,
-        //     {
-        //         action: action,
-        //         url: tabs[0].url,
-        //     },
-        //     (response) => {
-        //         console.log(response);
-        //     }
-        // );
+        console.log('currentWindow', tabs);
+        action.url = tabs[0].url;
+        console.log('action', action);
+
+        chrome.tabs.sendMessage(tabs[0].id, action, (response) => {
+            console.log(response);
+
+            // console.log('currentWindow', tabs);
+            // chrome.tabs.sendMessage(
+            //     tabs[0].id,
+            //     {
+            //         action: action,
+            //         url: tabs[0].url,
+            //     },
+            //     (response) => {
+            //         console.log(response);
+            //     }
+            // );
+        });
     });
 }
