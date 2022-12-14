@@ -27,7 +27,7 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // console.log('received message');
 
-    console.log('forgeround request', request);
+    console.log('foreground request', request);
     // console.log('sender',sender);
 
     // Get url details

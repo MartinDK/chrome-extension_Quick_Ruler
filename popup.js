@@ -2,11 +2,12 @@ console.log('popup.js....');
 
 let rulerHeightEl = document.getElementById('input-height');
 let saveBtnEl = document.getElementById('saveBtn');
-let getTranscriptEl = document.getElementById('getTranscript');
-let transcriptEl = document.getElementById('transcript');
+let actionNameEl = document.getElementById('actionName');
+let actionButtonEl = document.getElementById('actionButton');
+let actionOutputEl = document.getElementById('actionOutput');
 let rulerStateEl = document.getElementById('rulerState');
 
-transcriptEl.innerText = 'empty';
+actionOutputEl.innerText = 'empty';
 
 chrome.storage.session.get(['rulerOn']).then((result) => {
     let rulerOn = result.rulerOn;
@@ -20,7 +21,7 @@ chrome.storage.session.get(['rulerOn']).then((result) => {
             action: true,
         });
     } else {
-        console.log('message.action: false ->', rulerOn);
+        // console.log('message.action: false ->', rulerOn);
         rulerStateEl.checked = false;
     }
 });
@@ -42,7 +43,7 @@ saveBtnEl.addEventListener('click', (e) => {
     setRulerHeight(`${rulerHeightEl.value}`);
 });
 
-getTranscriptEl.addEventListener('click', (e) => {
+actionButtonEl.addEventListener('click', (e) => {
     // console.log('save...', e.target);
     // console.log('Msg...', e);
 
@@ -55,17 +56,50 @@ chrome.storage.local.get('rulerHeight', (data) => {
     setRulerHeight(data.rulerHeight);
 });
 
-chrome.runtime.sendMessage(
-    {
-        message: 'popup-open',
-    },
-    (response) => {
-        console.log('popup received response');
-        if (response) {
-            console.log('Response:', response);
-        }
-    }
-);
+// chrome.runtime.sendMessage(
+//     {
+//         message: 'popup-open',
+//     },
+//     (response) => {
+//         if (response) {
+//             console.log('Response from background:', response);
+//         }
+//     }
+// );
+
+(async () => {
+    const response = await chrome.runtime.sendMessage({ message: 'popup-open' }, (response) => {
+        // do something with response here, not outside the function
+        console.log('response ->', response);
+
+        chrome.storage.onChanged.addListener((response) => {
+            console.log('response -->', response.url.newValue);
+            let url = response.url.newValue;
+
+            if (url) {
+                let urlFixed = new URL('/', url);
+                console.log('url: true ->', urlFixed);
+
+                actionNameEl.innerText = urlFixed.host;
+            } else {
+                console.log('message.action: false ->', url);
+            }
+        });
+
+        chrome.storage.session.get(['url']).then((result) => {
+            let url = result.url;
+
+            if (url) {
+                console.log('url: true ->', url);
+
+                let urlFixed = new URL('/', url);
+                actionNameEl.innerText = urlFixed.host;
+            } else {
+                console.log('url: false ->', url);
+            }
+        });
+    });
+})();
 
 function setRulerHeight(rulerHeight) {
     // console.log('rulerHeight');
@@ -127,7 +161,7 @@ function messageForeground(messageObj) {
             },
             (response) => {
                 console.log('foreground response: ', response);
-                transcriptEl.innerText = response.transcript;
+                actionOutputEl.innerText = response.transcript;
             }
         );
     });

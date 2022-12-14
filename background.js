@@ -37,21 +37,19 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
                 files: ['./foreground.js'],
             })
             .then(() => {
-                console.log('Injected foreground.js from background.js');
-                console.log('running rulerOn!');
+                // console.log('Injected foreground.js from background.js');
                 chrome.storage.session.get(['rulerOn']).then((result) => {
-                    console.log('running rulerOn!!');
                     let rulerOn = result.rulerOn;
 
                     if (rulerOn) {
-                        console.log('rulerOn ->', rulerOn);
+                        // console.log('rulerOn ->', rulerOn);
 
                         messageForeground({
                             message: 'toggleRuler',
                             action: true,
                         });
                     } else {
-                        console.log('rulerOn ->', rulerOn);
+                        // console.log('rulerOn ->', rulerOn);
 
                         messageForeground({
                             message: 'toggleRuler',
@@ -66,7 +64,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
 
 // Chrome Message Handler
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log('request message:', request);
+    // console.log('request message:', request);
     // console.log('sender:', sender);
 
     // Foreground Response Handler
@@ -77,10 +75,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break;
 
         case 'popup-open':
-            // console.log('background.js received open popup message');
-            sendResponse({
-                message: 'hello popup from background',
-            });
+            setCurrentTab();
+            sendResponse({ message: 'setting current tab' });
+
             break;
 
         case 'options.js':
@@ -103,6 +100,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         case 'popup.js':
             console.log('sending message to popup.js');
+
             sendResponse({
                 message: 'background.js to popup.js!',
             });
@@ -131,18 +129,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break;
 
         default:
-            // sendResponse({
-            //     message: `!! ${} !! - No response found`,
-            // });
-
             console.log('No Response from background switch ..', request);
     }
-
-    console.log("background.js didn't reply. ", request);
 });
 
 function messageForeground(action) {
-    console.log('action', action);
+    // console.log('action', action);
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
         // console.log('lastFocusedWindow', tabs);
         let url = tabs[0].url;
@@ -153,22 +145,24 @@ function messageForeground(action) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         console.log('currentWindow', tabs);
         action.url = tabs[0].url;
-        console.log('action', action);
 
-        chrome.tabs.sendMessage(tabs[0].id, action, (response) => {
-            console.log(response);
+        // chrome.storage.session.set({ url: action.url }).then(() => {
+        //     console.log('url is set to ' + action.url);
+        // });
 
-            // console.log('currentWindow', tabs);
-            // chrome.tabs.sendMessage(
-            //     tabs[0].id,
-            //     {
-            //         action: action,
-            //         url: tabs[0].url,
-            //     },
-            //     (response) => {
-            //         console.log(response);
-            //     }
-            // );
-        });
+        // chrome.tabs.sendMessage(tabs[0].id, action, (response) => {
+        //     console.log(response);
+        // });
+    });
+}
+
+async function setCurrentTab() {
+    let queryOptions = { active: true, lastFocusedWindow: true };
+    // `tab` will either be a `tabs.Tab` instance or `undefined`.
+    let [tab] = await chrome.tabs.query(queryOptions);
+    console.log('tab', tab.url);
+
+    chrome.storage.session.set({ url: tab.url }).then(() => {
+        console.log('url is set to ' + tab.url);
     });
 }
