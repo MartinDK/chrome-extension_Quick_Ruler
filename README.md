@@ -4,9 +4,12 @@ A fixed width ruler, allowing quick measurement on a webpage.
 
 #### Todo
 
--   [ ] Use session storage to update Popup features according to webpage.[]
+-   [ ] Use session storage to update Popup features according to webpage.
+    -   [ ] change `<legend>` inner text
 
 #### Known Bugs
 
 -   [x] Ruler disappears when he page is refreshed.
--   [ ] Chemist Warehouse blocking doesn't work (block button doesn't exist anymore )
+-   [ ] Ruler doesn't turn off.
+-   [ ] Chemist Warehouse ad blocking doesn't work.
+-   [x] Webpage in popup doesn't update when changing tabs.
