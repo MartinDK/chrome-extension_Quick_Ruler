@@ -10,6 +10,6 @@ A fixed width ruler, allowing quick measurement on a webpage.
 #### Known Bugs
 
 -   [x] Ruler disappears when he page is refreshed.
--   [ ] Ruler doesn't turn off.
+-   [x] Ruler doesn't turn off.
 -   [ ] Chemist Warehouse ad blocking doesn't work.
 -   [x] Webpage in popup doesn't update when changing tabs.
