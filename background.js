@@ -72,6 +72,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         case 'rulerOn-Off':
             console.log('Ruler On/Off', request);
             messageForeground({ message: 'ruler', action: request.state, tabId: thisTab });
+            sendResponse({ message: 'updated ruler on/off' });
             break;
 
         case 'popup-open':
@@ -137,7 +138,6 @@ function messageForeground(action) {
     // console.log('action', action);
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
         // console.log('lastFocusedWindow', tabs);
-        let url = tabs[0].url;
         // use `url` here inside the callback because it's asynchronous!
     });
 
@@ -146,13 +146,13 @@ function messageForeground(action) {
         console.log('currentWindow', tabs);
         action.url = tabs[0].url;
 
-        // chrome.storage.session.set({ url: action.url }).then(() => {
-        //     console.log('url is set to ' + action.url);
-        // });
+        chrome.storage.session.set({ url: action.url }).then(() => {
+            console.log('url is set to ' + action.url);
+        });
 
-        // chrome.tabs.sendMessage(tabs[0].id, action, (response) => {
-        //     console.log(response);
-        // });
+        chrome.tabs.sendMessage(tabs[0].id, action, (response) => {
+            console.log(response);
+        });
     });
 }
 

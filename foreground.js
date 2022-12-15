@@ -19,14 +19,16 @@ chrome.storage.local.get('rulerHeight', (data) => {
 });
 
 chrome.storage.onChanged.addListener(function (changes, namespace) {
-    console.log('rulerHeight updated', changes.rulerHeight.newValue);
-    setRulerHeight(changes.rulerHeight.newValue);
+    // console.log('rulerHeight updated', changes.rulerHeight.newValue);
+    if (changes.rulerHeight) {
+        setRulerHeight(changes.rulerHeight.newValue);
+    } else {
+        console.log('No -', changes.rulerHeight);
+    }
 });
 
 // Chrome Message Handler
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    // console.log('received message');
-
     console.log('foreground request', request);
     // console.log('sender',sender);
 
@@ -34,7 +36,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const url = new URL(request.url);
     console.log('site', url);
 
-    // Execute function based on url origin
+    // handle urls
     switch (url.origin) {
         case 'https://www.chemistwarehouse.com.au/':
             console.log('Identified - Chemist Warehouse', request.url);
@@ -49,7 +51,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             console.log('Unrecognised website');
     }
 
-    // Message Handler
+    // handle message
     switch (request.message) {
         case 'toggleRuler':
             // console.log('toggleRuler', request.action);
@@ -57,7 +59,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             if (request.action) {
                 rulerOn();
             } else {
-                console.log('Ruler is off.');
+                rulerOff();
             }
 
             break;
@@ -74,6 +76,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         default:
             console.log('No action taken');
+            sendResponse(`foreground recieved -> ${request.url}`);
     }
 });
 
@@ -115,8 +118,8 @@ function chemistwarehouseBlocker(url) {
     }
 }
 
-function youtubeTranscript(url) {
-    console.log('Executing YouTube function', url);
+function youtubeTranscript() {
+    console.log('Getting YouTube transcript');
 
     let transcript = '';
     const transcriptList = document.querySelectorAll(
@@ -145,4 +148,8 @@ function setRulerHeight(rulerHeight) {
 
 function rulerOn() {
     targetEl.appendChild(rulerEl);
+}
+
+function rulerOff() {
+    rulerEl.remove();
 }

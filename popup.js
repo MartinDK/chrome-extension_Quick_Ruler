@@ -56,48 +56,31 @@ chrome.storage.local.get('rulerHeight', (data) => {
     setRulerHeight(data.rulerHeight);
 });
 
-// chrome.runtime.sendMessage(
-//     {
-//         message: 'popup-open',
-//     },
-//     (response) => {
-//         if (response) {
-//             console.log('Response from background:', response);
-//         }
-//     }
-// );
-
 (async () => {
-    const response = await chrome.runtime.sendMessage({ message: 'popup-open' }, (response) => {
+    chrome.runtime.sendMessage({ message: 'popup-open' }, (response) => {
         // do something with response here, not outside the function
         console.log('response ->', response);
+    });
 
-        chrome.storage.onChanged.addListener((response) => {
-            console.log('response -->', response.url.newValue);
-            let url = response.url.newValue;
+    chrome.storage.onChanged.addListener((response) => {
+        console.log('storage.onChanged response -->', response);
 
-            if (url) {
-                let urlFixed = new URL('/', url);
-                console.log('url: true ->', urlFixed);
+        if (response.url) {
+            console.log('response.url ->', response.url);
+        } else {
+            response.url = false;
+            response.url.newValue = false;
 
-                actionNameEl.innerText = urlFixed.host;
-            } else {
-                console.log('message.action: false ->', url);
-            }
-        });
+            console.log('--', response.url);
+        }
 
-        chrome.storage.session.get(['url']).then((result) => {
-            let url = result.url;
-
-            if (url) {
-                console.log('url: true ->', url);
-
-                let urlFixed = new URL('/', url);
-                actionNameEl.innerText = urlFixed.host;
-            } else {
-                console.log('url: false ->', url);
-            }
-        });
+        if (response.url.newValue) {
+            let urlFixed = new URL('/', response.url.newValue);
+            console.log('url: true ->', urlFixed);
+            actionNameEl.innerText = urlFixed.host;
+        } else {
+            console.log('response.url.newValue: false ->', response);
+        }
     });
 })();
 
@@ -122,36 +105,14 @@ function setRulerHeight(rulerHeight) {
 }
 
 function messageForeground(messageObj) {
-    chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-        // console.log('lastFocusedWindow', tabs);
-        let url = tabs[0].url;
-        // use `url` here inside the callback because it's asynchronous!
-        console.log('url= ', url);
-    });
-
     // Send message to 'tab' i.e foreground.js
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         // console.log('currentWindow', tabs);
 
-        let rulerOn = messageObj.action;
-
-        chrome.storage.session.set({ rulerOn: rulerOn }).then(() => {
-            console.log('rulerOn set to ', rulerOn);
+        chrome.storage.session.set({ rulerOn: messageObj.action }).then(() => {
+            console.log('rulerOn set to ', messageObj.action);
         });
 
-        if (messageObj.action) {
-            console.log('message.action: true -->', rulerOn);
-
-            // chrome.storage.session.set({ rulerOn: true }).then(() => {
-            //     console.log('rulerOn set to true');
-            // });
-        } else {
-            console.log('message.action: false -->', rulerOn);
-
-            // chrome.storage.session.set({ rulerOn: false }).then(() => {
-            //     console.log('rulerOn set to false');
-            // });
-        }
         chrome.tabs.sendMessage(
             tabs[0].id,
             {
@@ -161,7 +122,7 @@ function messageForeground(messageObj) {
             },
             (response) => {
                 console.log('foreground response: ', response);
-                actionOutputEl.innerText = response.transcript;
+                if (response) actionOutputEl.innerText = response.transcript;
             }
         );
     });
