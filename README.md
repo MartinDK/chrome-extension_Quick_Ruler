@@ -5,7 +5,7 @@ A fixed width ruler, allowing quick measurement on a webpage.
 #### Todo
 
 -   [ ] Use session storage to update Popup features according to webpage.
-    -   [ ] change `<legend>` inner text
+    -   [x] change `<legend>` inner text
 
 #### Known Bugs
 
