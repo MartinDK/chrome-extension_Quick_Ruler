@@ -59,19 +59,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
     }
 });
 
-// Chrome Message Handler
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    // console.log('request message:', request);
-    // console.log('sender:', sender);
-
     // Foreground Response Handler
     switch (request.message) {
-        case 'rulerOn-Off':
-            console.log('Ruler On/Off', request);
-            messageForeground({ message: 'ruler', action: request.state, tabId: thisTab });
-            sendResponse({ message: 'updated ruler on/off' });
-            break;
-
         case 'popup-open':
             setCurrentTab();
             sendResponse({ message: 'setting current tab' });
@@ -93,21 +83,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     install: `${data.install}`,
                     message: 'background.js to options.js!',
                 });
-            });
-            break;
-
-        case 'popup.js':
-            console.log('sending message to popup.js');
-
-            sendResponse({
-                message: 'background.js to popup.js!',
-            });
-            break;
-
-        case 'foreground.js':
-            console.log('sending message to foreground.js');
-            sendResponse({
-                message: 'background.js to foreground.js!',
             });
             break;
 
@@ -134,27 +109,34 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 function messageForeground(action) {
     // console.log('action', action);
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-        console.log('lastFocusedWindow', tabs);
-        // use `url` here inside the callback because it's asynchronous!
+        if (tabs) {
+            console.log('lastFocusedWindow', tabs);
+            // use `url` here inside the callback because it's asynchronous!
+        } else {
+            console.log('No lastFocusedWindow !!!');
+        }
     });
 
     // Send message to 'tab' i.e foreground.js
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        console.log('currentWindow', tabs);
-        action.url = tabs[0].url;
+        if (tabs.url) {
+            console.log('currentWindow', tabs);
+            action.url = tabs[0].url;
 
+            chrome.tabs.sendMessage(tabs[0].id, action, (response) => {
+                console.log('response --->', response);
+            });
+        } else {
+            console.log('No currentWindow !!!');
+        }
         chrome.storage.session.set({ url: action.url }).then(() => {
             // console.log('url is set to ' + action.url);
-        });
-
-        chrome.tabs.sendMessage(tabs[0].id, action, (response) => {
-            console.log('respons --->', response);
         });
     });
 }
 
 async function setCurrentTab() {
-    let queryOptions = { active: true, lastFocusedWindow: true };
+    let queryOptions = { active: true, currentWindow: true };
     // `tab` will either be a `tabs.Tab` instance or `undefined`.
     let [tab] = await chrome.tabs.query(queryOptions);
     // console.log('tab', tab.url);
