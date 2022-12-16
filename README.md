@@ -11,5 +11,6 @@ A fixed width ruler, allowing quick measurement on a webpage.
 
 -   [x] Ruler disappears when he page is refreshed.
 -   [x] Ruler doesn't turn off.
--   [ ] Chemist Warehouse ad blocking doesn't work.
--   [x] Webpage in popup doesn't update when changing tabs.
+-   [x] Fix Chemist Warehouse ad blocking.
+-   [x] Website name in popup doesn't update when changing tabs.
+-   [ ] Disable/Remove `<Get Transcript\>` button when on YouTube webpage.

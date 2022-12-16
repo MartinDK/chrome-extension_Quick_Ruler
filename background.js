@@ -15,10 +15,7 @@ chrome.storage.local.set({
 
 // Chrome Tab event listener
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
-    console.log('tabId:', tabId);
     thisTab = tabId;
-    //    console.log(changeInfo);
-    //    console.log(tabInfo);
 
     if (changeInfo.status === 'complete' && /^http/.test(tabInfo.url)) {
         // Inject service worker styles
@@ -28,7 +25,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
                 files: ['./foreground.css'],
             })
             .then(() => {
-                console.log('CSS Injected');
+                console.log('No CSS Injected!!!');
             });
         // Inject service worker (foreground.js) script into page
         chrome.scripting
@@ -137,7 +134,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 function messageForeground(action) {
     // console.log('action', action);
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-        // console.log('lastFocusedWindow', tabs);
+        console.log('lastFocusedWindow', tabs);
         // use `url` here inside the callback because it's asynchronous!
     });
 
@@ -147,11 +144,11 @@ function messageForeground(action) {
         action.url = tabs[0].url;
 
         chrome.storage.session.set({ url: action.url }).then(() => {
-            console.log('url is set to ' + action.url);
+            // console.log('url is set to ' + action.url);
         });
 
         chrome.tabs.sendMessage(tabs[0].id, action, (response) => {
-            console.log(response);
+            console.log('respons --->', response);
         });
     });
 }
@@ -160,9 +157,9 @@ async function setCurrentTab() {
     let queryOptions = { active: true, lastFocusedWindow: true };
     // `tab` will either be a `tabs.Tab` instance or `undefined`.
     let [tab] = await chrome.tabs.query(queryOptions);
-    console.log('tab', tab.url);
+    // console.log('tab', tab.url);
 
     chrome.storage.session.set({ url: tab.url }).then(() => {
-        console.log('url is set to ' + tab.url);
+        // console.log('url is set to ' + tab.url);
     });
 }

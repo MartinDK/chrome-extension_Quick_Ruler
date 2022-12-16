@@ -26,6 +26,13 @@ chrome.storage.session.get(['rulerOn']).then((result) => {
     }
 });
 
+chrome.storage.session.get(['url']).then((result) => {
+    console.log('result ---->', result);
+    let url = new URL(result.url);
+    console.log('result ---->', url);
+    actionNameEl.innerText = url.host;
+});
+
 rulerState.addEventListener('click', (e) => {
     // console.log('rulerState...', e);
     // console.log('rulerState...', rulerState.checked);

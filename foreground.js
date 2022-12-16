@@ -38,9 +38,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     // handle urls
     switch (url.origin) {
-        case 'https://www.chemistwarehouse.com.au/':
-            console.log('Identified - Chemist Warehouse', request.url);
+        case 'https://www.chemistwarehouse.com.au':
             chemistwarehouseBlocker(request.url);
+            console.log('Identified - Chemist Warehouse', request.url);
+
             break;
 
         case 'https://www.youtube.com':
@@ -58,8 +59,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
             if (request.action) {
                 rulerOn();
+                sendResponse('ruler on.');
             } else {
                 rulerOff();
+                sendResponse('ruler off.');
             }
 
             break;
@@ -98,13 +101,15 @@ function chemistwarehouseBlocker(url) {
 
             case 'removeElement':
                 console.log('removeElement');
-                removeElement(el);
+                if (el) removeElement(el);
                 break;
 
             default:
                 console.log('Chemist Warehouse Blocker Actin not found');
         }
     });
+
+    return;
 
     function removeBackgroundImage(elementID) {
         // console.log('execute removeBackgroundImage', elementID);
