@@ -1,7 +1,10 @@
-let thisTab;
+console.log('start background.js');
+
+let thisTab = '';
 
 // Initialise extension when extension is installed
 chrome.runtime.onInstalled.addListener(() => {
+    console.log('Execute on install');
     chrome.storage.local.set({
         install: 'Install 🟢',
         options: 'default',
@@ -9,12 +12,9 @@ chrome.runtime.onInstalled.addListener(() => {
     });
 });
 
-chrome.storage.local.set({
-    rulerHeight: '21',
-});
-
-// Chrome Tab event listener
+// Chrome Tabs event listener
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
+    console.log('background.js - tabs.changeInfo ->', changeInfo);
     thisTab = tabId;
 
     if (changeInfo.status === 'complete' && /^http/.test(tabInfo.url)) {
@@ -22,43 +22,30 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
         chrome.scripting
             .insertCSS({
                 target: { tabId: tabId },
-                files: ['./foreground.css'],
+                files: ['./styles/foreground.css'],
             })
             .then(() => {
-                console.log('No CSS Injected!!!');
+                console.log('foreground CSS injected!!!');
             });
         // Inject service worker (foreground.js) script into page
         chrome.scripting
             .executeScript({
                 target: { tabId: tabId },
-                files: ['./foreground.js'],
+                files: ['./js/foreground.js'],
             })
             .then(() => {
-                // console.log('Injected foreground.js from background.js');
+                console.log('Injected foreground.js from background.js');
                 chrome.storage.session.get(['rulerOn']).then((result) => {
                     let rulerOn = result.rulerOn;
 
-                    if (rulerOn) {
-                        // console.log('rulerOn ->', rulerOn);
-
-                        messageForeground({
-                            message: 'toggleRuler',
-                            action: true,
-                        });
-                    } else {
-                        // console.log('rulerOn ->', rulerOn);
-
-                        messageForeground({
-                            message: 'toggleRuler',
-                            action: false,
-                        });
-                    }
+                    handleRulerOn(rulerOn);
                 });
             })
             .catch((err) => console.log(err));
     }
 });
 
+// Message handler
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // Foreground Response Handler
     switch (request.message) {
@@ -106,8 +93,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 });
 
+function handleRulerOn(rulerOn) {
+    if (rulerOn) {
+        console.log('background.js - message.action: true ->', rulerOn);
+        messageForeground({
+            message: 'toggleRuler',
+            action: true,
+        });
+    } else {
+        console.log('background.js - message.action: false ->', rulerOn);
+        messageForeground({
+            message: 'toggleRuler',
+            action: false,
+        });
+    }
+}
+
 function messageForeground(action) {
-    // console.log('action', action);
+    console.log('action', action);
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
         if (tabs) {
             console.log('lastFocusedWindow', tabs);
@@ -123,14 +126,13 @@ function messageForeground(action) {
             console.log('currentWindow', tabs);
             action.url = tabs[0].url;
 
-            chrome.tabs.sendMessage(tabs[0].id, action, (response) => {
-                console.log('response --->', response);
+            chrome.storage.session.set({ url: action.url }).then(() => {
+                console.log('url is set to ' + action.url);
             });
-        } else {
-            console.log('No currentWindow !!!');
         }
-        chrome.storage.session.set({ url: action.url }).then(() => {
-            // console.log('url is set to ' + action.url);
+
+        chrome.tabs.sendMessage(tabs[0].id, action, (response) => {
+            console.log('response --->', response);
         });
     });
 }

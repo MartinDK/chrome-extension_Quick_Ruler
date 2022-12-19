@@ -33,29 +33,31 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // console.log('sender',sender);
 
     // Get url details
-    const url = new URL(request.url);
-    console.log('site', url);
+    if (request.url) {
+        const url = new URL(request.url);
+        console.log('site', url);
 
-    // handle urls
-    switch (url.origin) {
-        case 'https://www.chemistwarehouse.com.au':
-            chemistwarehouseBlocker(request.url);
-            console.log('Identified - Chemist Warehouse', request.url);
+        // handle urls
+        switch (url.origin) {
+            case 'https://www.chemistwarehouse.com.au':
+                chemistwarehouseBlocker(request.url);
+                console.log('Identified - Chemist Warehouse', request.url);
 
-            break;
+                break;
 
-        case 'https://www.youtube.com':
-            console.log('Identified - YouTube', request.url);
-            break;
+            case 'https://www.youtube.com':
+                console.log('Identified - YouTube', request.url);
+                break;
 
-        default:
-            console.log('Unrecognised website');
+            default:
+                console.log('Unrecognised website');
+        }
     }
 
     // handle message
     switch (request.message) {
         case 'toggleRuler':
-            // console.log('toggleRuler', request.action);
+            console.log('toggleRuler', request);
 
             if (request.action) {
                 rulerOn();

@@ -5,44 +5,31 @@ let saveBtnEl = document.getElementById('saveBtn');
 let actionNameEl = document.getElementById('actionName');
 let actionButtonEl = document.getElementById('actionButton');
 let actionOutputEl = document.getElementById('actionOutput');
-let rulerStateEl = document.getElementById('rulerState');
+let rulerOnEl = document.getElementById('rulerOn');
 
 actionOutputEl.innerText = 'empty';
 
 chrome.storage.session.get(['rulerOn']).then((result) => {
     let rulerOn = result.rulerOn;
 
-    if (rulerOn) {
-        console.log('message.action: true ->', rulerOn);
-        rulerStateEl.checked = true;
-
-        messageForeground({
-            message: 'toggleRuler',
-            action: true,
-        });
-    } else {
-        // console.log('message.action: false ->', rulerOn);
-        rulerStateEl.checked = false;
-    }
+    handleRulerState(rulerOn);
 });
 
 chrome.storage.session.get(['url']).then((result) => {
-    console.log('result ---->', result);
-    let url = new URL(result.url);
-    console.log('result ---->', url);
-    actionNameEl.innerText = url.host;
+    console.log("chrome.storage.session.get(['url']) ---->", result.url);
+
+    if (result.url) {
+        let url = new URL(result.url);
+        console.log('result ---->', url);
+        actionNameEl.innerText = url.host;
+    }
 });
 
-rulerState.addEventListener('click', (e) => {
-    // console.log('rulerState...', e);
-    // console.log('rulerState...', rulerState.checked);
+rulerOn.addEventListener('click', (e) => {
+    // console.log('ruler on/off checkbox ...', e);
+    console.log('rulerOn checkbox ->', rulerOn.checked);
 
-    let rulerToggle = rulerState.checked;
-
-    messageForeground({
-        message: 'toggleRuler',
-        action: rulerToggle,
-    });
+    handleRulerState(rulerOn.checked);
 });
 
 saveBtnEl.addEventListener('click', (e) => {
@@ -73,15 +60,15 @@ chrome.storage.local.get('rulerHeight', (data) => {
         console.log('storage.onChanged response -->', response);
 
         if (response.url) {
-            console.log('response.url ->', response.url);
+            console.log('response.url  TRUE ->', response.url);
         } else {
+            console.log('response.url  FALSE ->', response.url);
             response.url = false;
             response.url.newValue = false;
-
-            console.log('--', response.url);
         }
 
         if (response.url.newValue) {
+            console.log('response.url.newValue: true ->', response);
             let urlFixed = new URL('/', response.url.newValue);
             console.log('url: true ->', urlFixed);
             actionNameEl.innerText = urlFixed.host;
@@ -90,6 +77,20 @@ chrome.storage.local.get('rulerHeight', (data) => {
         }
     });
 })();
+
+function handleRulerState(rulerOn) {
+    if (rulerOn) {
+        console.log('message.action: true ->', rulerOn);
+        rulerOnEl.checked = true;
+    } else {
+        console.log('message.action: false ->', rulerOn);
+        rulerOnEl.checked = false;
+    }
+    messageForeground({
+        message: 'toggleRuler',
+        action: rulerOn,
+    });
+}
 
 function setRulerHeight(rulerHeight) {
     // console.log('rulerHeight');
@@ -113,6 +114,7 @@ function setRulerHeight(rulerHeight) {
 
 function messageForeground(messageObj) {
     // Send message to 'tab' i.e foreground.js
+    console.log('message foreground ->', messageObj);
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         // console.log('currentWindow', tabs);
 
