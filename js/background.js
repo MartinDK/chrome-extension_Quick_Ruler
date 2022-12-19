@@ -55,8 +55,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
             break;
 
+        case 'setRulerHeight':
+            // console.log('setRulerHeight');
+            sendResponse({
+                message: `Ruler height set to ${request.rulerHeight}px ✅`,
+            });
+
+            chrome.storage.local.set({
+                rulerHeight: request.rulerHeight,
+            });
+            break;
+
         case 'options.js':
-            console.log('Received Options message!');
+            // console.log('Received Options message!');
 
             // Get 'install' data from local storage
             chrome.storage.local.get('install', (data) => {
@@ -73,17 +84,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             });
             break;
 
-        case 'update-popup':
-            console.log('received popup.js update');
-            sendResponse({
-                message: `background.js received ${request.rulerHeight}px ✅`,
-            });
-
-            chrome.storage.local.set({
-                rulerHeight: request.rulerHeight,
-            });
-            break;
-
         case 'update-options':
             console.log('update-options-selected!!!');
             break;
@@ -95,13 +95,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 function handleRulerOn(rulerOn) {
     if (rulerOn) {
-        console.log('background.js - message.action: true ->', rulerOn);
+        // console.log('background.js - message.action: true ->', rulerOn);
         messageForeground({
             message: 'toggleRuler',
             action: true,
         });
     } else {
-        console.log('background.js - message.action: false ->', rulerOn);
+        // console.log('background.js - message.action: false ->', rulerOn);
         messageForeground({
             message: 'toggleRuler',
             action: false,

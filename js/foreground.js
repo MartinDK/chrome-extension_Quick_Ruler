@@ -81,7 +81,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         default:
             console.log('No action taken');
-            sendResponse(`foreground recieved -> ${request.url}`);
+            sendResponse(`foreground received -> ${request.url}`);
     }
 });
 
@@ -148,7 +148,7 @@ function handleMouseUp(e) {
 }
 
 function setRulerHeight(rulerHeight) {
-    console.log('Setting ruler height:', rulerHeight);
+    // console.log('Setting ruler height:', rulerHeight);
     rulerEl.style.height = `${rulerHeight}px`;
     rulerTxt.innerText = `${rulerHeight}px`;
 }

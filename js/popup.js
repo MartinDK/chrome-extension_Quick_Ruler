@@ -100,7 +100,7 @@ function setRulerHeight(rulerHeight) {
     // Message event listener
     chrome.runtime.sendMessage(
         {
-            message: 'update-popup',
+            message: 'setRulerHeight',
             rulerHeight: rulerHeight,
         },
         (response) => {
